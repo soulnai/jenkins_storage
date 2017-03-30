@@ -221,7 +221,7 @@ cppcheck --enable=all --inconclusive -i &quot;src/3rd_party-static&quot; -i &quo
       </cppcheckConfig>
     </org.jenkinsci.plugins.cppcheck.CppcheckPublisher>
     <hudson.tasks.junit.JUnitResultArchiver plugin="junit@1.20">
-      <testResults>gtest.xml</testResults>
+      <testResults>build/test_results/*.xml</testResults>
       <keepLongStdio>false</keepLongStdio>
       <healthScaleFactor>1.0</healthScaleFactor>
       <allowEmptyResults>false</allowEmptyResults>
@@ -229,7 +229,7 @@ cppcheck --enable=all --inconclusive -i &quot;src/3rd_party-static&quot; -i &quo
     <xunit plugin="xunit@1.102">
       <types>
         <GoogleTestType>
-          <pattern>gtest.xml</pattern>
+          <pattern>build/test_results/*.xml</pattern>
           <skipNoTestFiles>false</skipNoTestFiles>
           <failIfNotNew>false</failIfNotNew>
           <deleteOutputFiles>false</deleteOutputFiles>
