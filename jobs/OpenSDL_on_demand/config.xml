@@ -67,7 +67,7 @@
       <paramsToUseForLimit></paramsToUseForLimit>
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.1.0">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
@@ -113,6 +113,7 @@ cd build
 export THIRD_PARTY_INSTALL_PREFIX=${WORKSPACE}/build/src/3rdparty/LINUX
 export THIRD_PARTY_INSTALL_PREFIX_ARCH=${THIRD_PARTY_INSTALL_PREFIX}/x86
 export LD_LIBRARY_PATH=$THIRD_PARTY_INSTALL_PREFIX_ARCH/lib
+export GTEST_OUTPUT=&quot;xml:${WORKSPACE}/gtest.xml&quot;
 make install
 sudo ldconfig
 mkdir /tmp/corefiles
@@ -150,7 +151,7 @@ cppcheck --enable=all --inconclusive -i &quot;src/3rd_party-static&quot; -i &quo
       <usePreviousBuildAsReference>false</usePreviousBuildAsReference>
       <useStableBuildAsReference>false</useStableBuildAsReference>
       <useDeltaValues>false</useDeltaValues>
-      <thresholds plugin="analysis-core@1.82">
+      <thresholds plugin="analysis-core@1.83">
         <unstableTotalAll></unstableTotalAll>
         <unstableTotalHigh></unstableTotalHigh>
         <unstableTotalNormal></unstableTotalNormal>
@@ -237,7 +238,8 @@ LC_ALL=en_US.UTF-8
 CTEST_OUTPUT_ON_FAILURE=TRUE 
 THIRD_PARTY_INSTALL_PREFIX=${WORKSPACE}/build/src/3rdparty/LINUX
 THIRD_PARTY_INSTALL_PREFIX_ARCH=${THIRD_PARTY_INSTALL_PREFIX}/x86
-LD_LIBRARY_PATH=$THIRD_PARTY_INSTALL_PREFIX_ARCH/lib</propertiesContent>
+LD_LIBRARY_PATH=$THIRD_PARTY_INSTALL_PREFIX_ARCH/lib
+GTEST_OUTPUT=&quot;xml:${WORKSPACE}/gtest.xml&quot;</propertiesContent>
         <loadFilesFromMaster>false</loadFilesFromMaster>
       </info>
     </EnvInjectBuildWrapper>

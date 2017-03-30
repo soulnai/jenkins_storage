@@ -293,7 +293,7 @@
           <instanceCap>18</instanceCap>
           <mode>EXCLUSIVE</mode>
           <retentionStrategy class="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">
-            <idleMinutes>1</idleMinutes>
+            <idleMinutes>0</idleMinutes>
             <idleMinutes defined-in="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">1</idleMinutes>
           </retentionStrategy>
           <numExecutors>1</numExecutors>
