@@ -1,0 +1,245 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <permission>hudson.model.Item.Read:anonymous</permission>
+      <permission>hudson.model.Item.Workspace:anonymous</permission>
+      <permission>hudson.model.Item.Build:anonymous</permission>
+      <permission>hudson.model.Run.Replay:anonymous</permission>
+      <permission>hudson.model.Item.ViewStatus:anonymous</permission>
+    </hudson.security.AuthorizationMatrixProperty>
+    <org.datadog.jenkins.plugins.datadog.DatadogJobProperty plugin="datadog@0.5.6">
+      <emitOnCheckout>false</emitOnCheckout>
+    </org.datadog.jenkins.plugins.datadog.DatadogJobProperty>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
+      <projectUrl>https://github.com/indlu/sdl_core/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>REPOSITORY</name>
+          <description></description>
+          <defaultValue>smartdevicelink/sdl_core</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PROPERTY</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>PROPRIETARY</string>
+              <string>EXTERNAL_PROPRIETARY</string>
+              <string>HTTP</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>RC</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>ON</string>
+              <string>OFF</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.9.0">
+      <maxConcurrentPerNode>1</maxConcurrentPerNode>
+      <maxConcurrentTotal>3</maxConcurrentTotal>
+      <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+      <throttleEnabled>true</throttleEnabled>
+      <throttleOption>project</throttleOption>
+      <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit></paramsToUseForLimit>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/${REPOSITORY}</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>${BRANCH}</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <browser class="hudson.plugins.git.browser.GithubWeb">
+      <url>https://github.com/${REPOSITORY}</url>
+    </browser>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <assignedNode>atf_slave3</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.plugins.cmake.CmakeBuilder plugin="cmakebuilder@2.4.4">
+      <installationName>InSearchPath</installationName>
+      <workingDir>build</workingDir>
+      <toolArgs>-DBUILD_TESTS=ON -DENABLE_GCOV=ON -DUSE_DISTCC=OFF -DEXTENDED_POLICY=${PROPERTY} -DREMOTE_CONTROL=${RC}</toolArgs>
+      <sourceDir>.</sourceDir>
+      <buildType>Debug</buildType>
+      <cleanBuild>true</cleanBuild>
+      <toolSteps/>
+    </hudson.plugins.cmake.CmakeBuilder>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+locale
+sudo apt-get install -y gdb;
+ulimit -c unlimited;
+bash -e tools/infrastructure/check_style.sh
+cd build
+export THIRD_PARTY_INSTALL_PREFIX=${WORKSPACE}/build/src/3rdparty/LINUX
+export THIRD_PARTY_INSTALL_PREFIX_ARCH=${THIRD_PARTY_INSTALL_PREFIX}/x86
+export LD_LIBRARY_PATH=$THIRD_PARTY_INSTALL_PREFIX_ARCH/lib
+make install
+sudo ldconfig
+mkdir /tmp/corefiles
+sudo chmod -R 777 /tmp/corefiles
+make test | tee ut.log || true; result=${PIPESTATUS[0]};
+if [ $result -ne 0 ]; then
+ COREFILE=$(find /tmp/corefiles -type f -name &quot;core*&quot;);
+ echo $COREFILE;
+ grep -w &quot;SegFault&quot; ut.log | while read -r line; do 
+  arr=($line); 
+  echo ${arr[3]};
+ done &gt; res.txt;
+ test_file=$(find ${WORKSPACE}/build/src/components/ -type f -name $(cat res.txt));
+ echo $test_file;
+ echo &quot;Started gdb!&quot;;
+ echo thread apply all bt | gdb $test_file $COREFILE;
+ exit 1;
+fi
+cp -r ${WORKSPACE}/build/src/3rdparty/LINUX/x86/lib/. ${WORKSPACE}/build/bin/
+mkdir ${WORKSPACE}/build/bin/api
+cp -r ${WORKSPACE}/src/components/interfaces/. ${WORKSPACE}/build/bin/api/
+#tar -zcvf OpenSDL_${PROPERTY}_${RC}.tar.gz bin/
+cd ..
+cppcheck --enable=all --inconclusive -i &quot;src/3rd_party-static&quot; -i &quot;src/3rd_party&quot; --xml --xml-version=2 -q src 2&gt; cppcheck.xml</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@4.60">
+      <healthy></healthy>
+      <unHealthy></unHealthy>
+      <thresholdLimit>low</thresholdLimit>
+      <pluginName>[WARNINGS] </pluginName>
+      <defaultEncoding></defaultEncoding>
+      <canRunOnFailed>false</canRunOnFailed>
+      <usePreviousBuildAsReference>false</usePreviousBuildAsReference>
+      <useStableBuildAsReference>false</useStableBuildAsReference>
+      <useDeltaValues>false</useDeltaValues>
+      <thresholds plugin="analysis-core@1.82">
+        <unstableTotalAll></unstableTotalAll>
+        <unstableTotalHigh></unstableTotalHigh>
+        <unstableTotalNormal></unstableTotalNormal>
+        <unstableTotalLow></unstableTotalLow>
+        <unstableNewAll></unstableNewAll>
+        <unstableNewHigh></unstableNewHigh>
+        <unstableNewNormal></unstableNewNormal>
+        <unstableNewLow></unstableNewLow>
+        <failedTotalAll></failedTotalAll>
+        <failedTotalHigh></failedTotalHigh>
+        <failedTotalNormal></failedTotalNormal>
+        <failedTotalLow></failedTotalLow>
+        <failedNewAll></failedNewAll>
+        <failedNewHigh></failedNewHigh>
+        <failedNewNormal></failedNewNormal>
+        <failedNewLow></failedNewLow>
+      </thresholds>
+      <shouldDetectModules>false</shouldDetectModules>
+      <dontComputeNew>true</dontComputeNew>
+      <doNotResolveRelativePaths>true</doNotResolveRelativePaths>
+      <includePattern></includePattern>
+      <excludePattern></excludePattern>
+      <messagesPattern></messagesPattern>
+      <parserConfigurations/>
+      <consoleParsers>
+        <hudson.plugins.warnings.ConsoleParser>
+          <parserName>CppLint</parserName>
+        </hudson.plugins.warnings.ConsoleParser>
+        <hudson.plugins.warnings.ConsoleParser>
+          <parserName>GNU C Compiler 4 (gcc)</parserName>
+        </hudson.plugins.warnings.ConsoleParser>
+        <hudson.plugins.warnings.ConsoleParser>
+          <parserName>GNU Make + GNU C Compiler (gcc)</parserName>
+        </hudson.plugins.warnings.ConsoleParser>
+      </consoleParsers>
+    </hudson.plugins.warnings.WarningsPublisher>
+    <org.jenkinsci.plugins.cppcheck.CppcheckPublisher plugin="cppcheck@1.21">
+      <cppcheckConfig>
+        <pattern>cppcheck.xml</pattern>
+        <ignoreBlankFiles>false</ignoreBlankFiles>
+        <allowNoReport>false</allowNoReport>
+        <configSeverityEvaluation>
+          <threshold></threshold>
+          <newThreshold></newThreshold>
+          <failureThreshold></failureThreshold>
+          <newFailureThreshold></newFailureThreshold>
+          <healthy>10</healthy>
+          <unHealthy>100</unHealthy>
+          <severityError>true</severityError>
+          <severityWarning>true</severityWarning>
+          <severityStyle>true</severityStyle>
+          <severityPerformance>true</severityPerformance>
+          <severityInformation>true</severityInformation>
+          <severityNoCategory>true</severityNoCategory>
+          <severityPortability>true</severityPortability>
+        </configSeverityEvaluation>
+        <configGraph>
+          <xSize>500</xSize>
+          <ySize>200</ySize>
+          <numBuildsInGraph>0</numBuildsInGraph>
+          <displayAllErrors>true</displayAllErrors>
+          <displayErrorSeverity>true</displayErrorSeverity>
+          <displayWarningSeverity>true</displayWarningSeverity>
+          <displayStyleSeverity>true</displayStyleSeverity>
+          <displayPerformanceSeverity>true</displayPerformanceSeverity>
+          <displayInformationSeverity>true</displayInformationSeverity>
+          <displayNoCategorySeverity>true</displayNoCategorySeverity>
+          <displayPortabilitySeverity>true</displayPortabilitySeverity>
+        </configGraph>
+      </cppcheckConfig>
+    </org.jenkinsci.plugins.cppcheck.CppcheckPublisher>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.32">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.8.8"/>
+    <EnvInjectBuildWrapper plugin="envinject@1.93.1">
+      <info>
+        <propertiesContent>LC_CTYPE=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+CTEST_OUTPUT_ON_FAILURE=TRUE 
+THIRD_PARTY_INSTALL_PREFIX=${WORKSPACE}/build/src/3rdparty/LINUX
+THIRD_PARTY_INSTALL_PREFIX_ARCH=${THIRD_PARTY_INSTALL_PREFIX}/x86
+LD_LIBRARY_PATH=$THIRD_PARTY_INSTALL_PREFIX_ARCH/lib</propertiesContent>
+        <loadFilesFromMaster>false</loadFilesFromMaster>
+      </info>
+    </EnvInjectBuildWrapper>
+  </buildWrappers>
+</project>

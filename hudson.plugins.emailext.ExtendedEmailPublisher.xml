@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson.plugins.emailext.ExtendedEmailPublisherDescriptor plugin="email-ext@2.57.1">
+  <smtpAuthUsername>lc-jenkins@smtp.luxoft.com</smtpAuthUsername>
+  <smtpAuthPassword>{AQAAABAAAAAQ0ruQZOExvxvlcldMOWpmTWoCtaAEQk8Q1Jr9sPuLPq4=}</smtpAuthPassword>
+  <smtpHost>smtp.luxoft.com</smtpHost>
+  <useSsl>false</useSsl>
+  <smtpPort>25</smtpPort>
+  <charset>UTF-8</charset>
+  <defaultContentType>text/html</defaultContentType>
+  <defaultSubject>$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!</defaultSubject>
+  <defaultBody>${SCRIPT, template=&quot;groovy-html.template&quot;}</defaultBody>
+  <defaultPresendScript></defaultPresendScript>
+  <defaultPostsendScript></defaultPostsendScript>
+  <defaultClasspath/>
+  <defaultTriggerIds>
+    <string>hudson.plugins.emailext.plugins.trigger.FailureTrigger</string>
+  </defaultTriggerIds>
+  <maxAttachmentSize>-1</maxAttachmentSize>
+  <recipientList></recipientList>
+  <defaultReplyTo>mailer@lc-jenkinsdockerhost.luxoft.com</defaultReplyTo>
+  <excludedCommitters></excludedCommitters>
+  <overrideGlobalSettings>true</overrideGlobalSettings>
+  <precedenceBulk>false</precedenceBulk>
+  <debugMode>true</debugMode>
+  <requireAdminForTemplateTesting>false</requireAdminForTemplateTesting>
+  <enableWatching>false</enableWatching>
+</hudson.plugins.emailext.ExtendedEmailPublisherDescriptor>

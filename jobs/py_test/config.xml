@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.24.0">
+      <projectUrl>https://github.com/smartdevicelink/sdl_atf.git/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SDL_BUILD</name>
+          <description></description>
+          <defaultValue>27</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>POLICY</name>
+          <description></description>
+          <defaultValue>BASE</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/smartdevicelink/sdl_atf</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/develop</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <assignedNode>atf_slave</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+git submodule init
+git submodule update
+make
+mkdir aut
+cd aut
+if [ &quot;$POLICY&quot; == &quot;BASE&quot; ]; then
+	wget http://172.30.23.4:8081/artifactory/OpenSDL/${SDL_BUILD}/OpenSDL.tar.gz
+else
+	wget http://172.30.23.4:8081/artifactory/OpenSDL_${POLICY}/${SDL_BUILD}/OpenSDL.tar.gz
+fi
+tar -xvf OpenSDL.tar.gz
+cd bin
+pwd
+export LD_LIBRARY_PATH=.
+sudo ldconfig
+cd ../..
+git clone https://github.com/smartdevicelink/sdl_atf_test_scripts.git
+cd sdl_atf_test_scripts
+git checkout feature/external_proprietary_policy
+cd ..
+cp -r sdl_atf_test_scripts/. ${WORKSPACE}/
+pwd
+cp -rf aut/bin/api/. ${WORKSPACE}/data/
+ls -l data/
+echo ${POLICY}
+
+wget http://172.30.23.4:8081/artifactory/test-generic/gen_test_from_lua.py
+sudo pip install nose
+mkdir tmp
+#for i in $(cat ./test_sets/policies_happy_paths.txt);
+#do
+# echo $i;
+# cp $i tmp/
+#done
+cp ./test_scripts/Polices/user_consent_of_Policies/103_ATF_isPermissionsConsentNeeded_false.lua ./tmp/
+ls -l tmp
+
+python gen_test_from_lua.py --path_to_sdl=aut/bin --work_dir=t --src_dir=./tmp/
+cat nose_test_set.py
+rm -rf gen_test_from_lua.py
+ls -l
+nosetests -s --nocapture --with-xunit
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>**/nosetests.xml</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.junit.JUnitResultArchiver plugin="junit@1.19">
+      <testResults>**/nosetests.xml</testResults>
+      <keepLongStdio>false</keepLongStdio>
+      <healthScaleFactor>1.0</healthScaleFactor>
+      <allowEmptyResults>false</allowEmptyResults>
+    </hudson.tasks.junit.JUnitResultArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.32">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.8.7"/>
+    <EnvInjectBuildWrapper plugin="envinject@1.93.1">
+      <info>
+        <propertiesContent>QMAKE=/opt/qt53/bin/qmake</propertiesContent>
+        <loadFilesFromMaster>false</loadFilesFromMaster>
+      </info>
+    </EnvInjectBuildWrapper>
+  </buildWrappers>
+</project>

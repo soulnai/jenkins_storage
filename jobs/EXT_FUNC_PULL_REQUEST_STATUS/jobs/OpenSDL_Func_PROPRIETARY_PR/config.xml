@@ -1,0 +1,471 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <org.datadog.jenkins.plugins.datadog.DatadogJobProperty plugin="datadog@0.5.6">
+      <emitOnCheckout>false</emitOnCheckout>
+    </org.datadog.jenkins.plugins.datadog.DatadogJobProperty>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>10</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>10</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.1">
+      <projectUrl>https://github.com/smartdevicelink/sdl_core/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.9.0">
+      <maxConcurrentPerNode>1</maxConcurrentPerNode>
+      <maxConcurrentTotal>2</maxConcurrentTotal>
+      <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+      <throttleEnabled>true</throttleEnabled>
+      <throttleOption>project</throttleOption>
+      <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit></paramsToUseForLimit>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <name>origin</name>
+        <refspec>+refs/pull/*:refs/remotes/origin/pr/*</refspec>
+        <url>https://github.com/smartdevicelink/sdl_core</url>
+        <credentialsId>282420ae-3807-4518-a1d0-a1ead552bbae</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>${SHA1}</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <browser class="hudson.plugins.git.browser.GithubWeb">
+      <url>https://github.com/smartdevicelink/sdl_core</url>
+    </browser>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.CloneOption>
+        <shallow>false</shallow>
+        <noTags>false</noTags>
+        <reference>/home/jenkins/OpenSDL_git/sdl_core</reference>
+        <depth>0</depth>
+        <honorRefspec>false</honorRefspec>
+      </hudson.plugins.git.extensions.impl.CloneOption>
+    </extensions>
+  </scm>
+  <assignedNode>atf_slave</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <org.jenkinsci.plugins.ghprb.GhprbTrigger plugin="ghprb@1.35.0">
+      <spec>H/5 * * * *</spec>
+      <latestVersion>3</latestVersion>
+      <configVersion>3</configVersion>
+      <adminlist>JenkinsSDLOnCloud</adminlist>
+      <allowMembersOfWhitelistedOrgsAsAdmin>false</allowMembersOfWhitelistedOrgsAsAdmin>
+      <orgslist></orgslist>
+      <cron>H/5 * * * *</cron>
+      <buildDescTemplate></buildDescTemplate>
+      <onlyTriggerPhrase>false</onlyTriggerPhrase>
+      <useGitHubHooks>false</useGitHubHooks>
+      <permitAll>true</permitAll>
+      <whitelist></whitelist>
+      <autoCloseFailedPullRequests>false</autoCloseFailedPullRequests>
+      <displayBuildErrorsOnDownstreamBuilds>false</displayBuildErrorsOnDownstreamBuilds>
+      <whiteListTargetBranches>
+        <org.jenkinsci.plugins.ghprb.GhprbBranch>
+          <branch>feature/extended_policy_functionality</branch>
+        </org.jenkinsci.plugins.ghprb.GhprbBranch>
+      </whiteListTargetBranches>
+      <blackListTargetBranches>
+        <org.jenkinsci.plugins.ghprb.GhprbBranch>
+          <branch></branch>
+        </org.jenkinsci.plugins.ghprb.GhprbBranch>
+      </blackListTargetBranches>
+      <gitHubAuthId>89852dde-ccc8-4821-90af-a065b3b6392d</gitHubAuthId>
+      <triggerPhrase>Rebuild required</triggerPhrase>
+      <skipBuildPhrase>.*\[skip\W+ci\].*</skipBuildPhrase>
+      <blackListLabels></blackListLabels>
+      <whiteListLabels></whiteListLabels>
+      <extensions>
+        <org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
+          <commitStatusContext>feature/extended_policy - PROPRIETARY</commitStatusContext>
+          <triggeredStatus></triggeredStatus>
+          <startedStatus></startedStatus>
+          <statusUrl></statusUrl>
+          <addTestResults>false</addTestResults>
+        </org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
+      </extensions>
+    </org.jenkinsci.plugins.ghprb.GhprbTrigger>
+  </triggers>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.plugins.cmake.CmakeBuilder plugin="cmakebuilder@2.4.4">
+      <installationName>InSearchPath</installationName>
+      <workingDir>build</workingDir>
+      <toolArgs>-DBUILD_TESTS=ON -DENABLE_GCOV=ON -DEXTENDED_POLICY=PROPRIETARY</toolArgs>
+      <sourceDir>.</sourceDir>
+      <buildType>Debug</buildType>
+      <cleanBuild>true</cleanBuild>
+      <toolSteps/>
+    </hudson.plugins.cmake.CmakeBuilder>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+locale
+#sudo apt-get install -y gdb;
+#ulimit -c unlimited;
+bash -e tools/infrastructure/check_style.sh
+cd build
+export THIRD_PARTY_INSTALL_PREFIX=${WORKSPACE}/build/src/3rdparty/LINUX
+export THIRD_PARTY_INSTALL_PREFIX_ARCH=${THIRD_PARTY_INSTALL_PREFIX}/x86
+export LD_LIBRARY_PATH=$THIRD_PARTY_INSTALL_PREFIX_ARCH/lib
+make install
+sudo ldconfig
+mkdir /tmp/corefiles
+sudo chmod -R 777 /tmp/corefiles
+make test | tee ut.log || true; result=${PIPESTATUS[0]};
+if [ $result -ne 0 ]; then
+ COREFILE=$(find /tmp/corefiles -type f -name &quot;core*&quot;);
+ echo $COREFILE;
+ grep -w &quot;SegFault&quot; ut.log | while read -r line; do 
+  arr=($line); 
+  echo ${arr[3]};
+ done &gt; res.txt;
+ test_file=$(find ${WORKSPACE}/build/src/components/ -type f -name $(cat res.txt));
+ echo $test_file;
+ echo &quot;Started gdb!&quot;;
+ echo thread apply all bt | gdb $test_file $COREFILE;
+ exit 1;
+fi
+cp -r ${WORKSPACE}/build/src/3rdparty/LINUX/x86/lib/. ${WORKSPACE}/build/bin/
+mkdir ${WORKSPACE}/build/bin/api
+cp -r ${WORKSPACE}/src/components/interfaces/. ${WORKSPACE}/build/bin/api/
+tar -zcvf OpenSDL.tar.gz bin/
+curl -u admin:1qaz@WSX -X PUT &quot;http://172.30.23.4:8081/artifactory/OpenSDL_Func_PR/PROPRIETARY/${BUILD_NUMBER}/OpenSDL.tar.gz&quot; -T OpenSDL.tar.gz
+cd ..
+cppcheck --enable=all --inconclusive -i &quot;src/3rd_party-static&quot; -i &quot;src/3rd_party&quot; --xml --xml-version=2 -q src 2&gt; cppcheck.xml</command>
+    </hudson.tasks.Shell>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.3.5">
+      <condition class="org.jenkins_ci.plugins.run_condition.core.StatusCondition" plugin="run-condition@1.0">
+        <worstResult>
+          <name>SUCCESS</name>
+          <ordinal>0</ordinal>
+          <color>BLUE</color>
+          <completeBuild>true</completeBuild>
+        </worstResult>
+        <bestResult>
+          <name>SUCCESS</name>
+          <ordinal>0</ordinal>
+          <color>BLUE</color>
+          <completeBuild>true</completeBuild>
+        </bestResult>
+      </condition>
+      <buildStep class="hudson.plugins.parameterizedtrigger.TriggerBuilder" plugin="parameterized-trigger@2.33">
+        <configs>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=AutoCompleteList_test_set.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-23345_NIGHTLY_AutoCompleteList_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=PAPT_new_param_audioPassThruIcon.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-23358_NIGHTLY_PAPT_new_param_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=AddSubMenu_subMenuIcon.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-23377_NIGHTLY_AddSubMenu_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=OnSeekMediaClockTimer_SetMediaClockTimer_enableSeek.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-23389_NIGHTLY_OnSeekMediaClockTimer_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=RegisterAppInterface_parameter_steeringWheelLocation.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-23406_NIGHTLY_RegisterAppInterface_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=regression_RAI_steeringWheelLocation.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-23406_NIGHTLY_regression_RAI_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=SetAudioStreamingIndicator_conditions_for_SDL_to_handle_related_cases.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-23417_NIGHTLY_SetAudioStreamingIndicator_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=regression_UI_IsReady_SetAudioStreamingIndicator.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-23417_NIGHTLY_UI_IsReady_SetAudioStreamingIndicator_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=SDL_must_send_WARNINGS_success_true_to_mob_if_HMI_respond_WARNINGS_at_least_to_one_component_of_RPC.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-29022_NIGHTLY_SDL_must_send_WARNINGS_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=AppIconsFolder_test_set.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-29287_NIGHTLY_AppIconsFolder_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=policies_smoke.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>ATF_Func_policy_smoke_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=rc_smoke.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>ATF_Func_rc_smoke_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>SDL_BUILD=${BUILD_NUMBER}
+POLICY=PROPRIETARY
+PULL_ID=${ghprbPullId}
+BRANCH=${GIT_BRANCH}
+TEST_SET=PTU_no_certificate_exists_at_module_config.txt</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>CRQ/APPLINK-27520_PTU_no_certificate_PR</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+        </configs>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.0"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+  </builders>
+  <publishers>
+    <org.jenkinsci.plugins.cppcheck.CppcheckPublisher plugin="cppcheck@1.21">
+      <cppcheckConfig>
+        <pattern>cppcheck.xml</pattern>
+        <ignoreBlankFiles>false</ignoreBlankFiles>
+        <allowNoReport>true</allowNoReport>
+        <configSeverityEvaluation>
+          <threshold></threshold>
+          <newThreshold></newThreshold>
+          <failureThreshold></failureThreshold>
+          <newFailureThreshold>1</newFailureThreshold>
+          <healthy></healthy>
+          <unHealthy></unHealthy>
+          <severityError>true</severityError>
+          <severityWarning>false</severityWarning>
+          <severityStyle>false</severityStyle>
+          <severityPerformance>false</severityPerformance>
+          <severityInformation>false</severityInformation>
+          <severityNoCategory>false</severityNoCategory>
+          <severityPortability>false</severityPortability>
+        </configSeverityEvaluation>
+        <configGraph>
+          <xSize>500</xSize>
+          <ySize>200</ySize>
+          <numBuildsInGraph>0</numBuildsInGraph>
+          <displayAllErrors>true</displayAllErrors>
+          <displayErrorSeverity>true</displayErrorSeverity>
+          <displayWarningSeverity>true</displayWarningSeverity>
+          <displayStyleSeverity>true</displayStyleSeverity>
+          <displayPerformanceSeverity>true</displayPerformanceSeverity>
+          <displayInformationSeverity>true</displayInformationSeverity>
+          <displayNoCategorySeverity>true</displayNoCategorySeverity>
+          <displayPortabilitySeverity>true</displayPortabilitySeverity>
+        </configGraph>
+      </cppcheckConfig>
+    </org.jenkinsci.plugins.cppcheck.CppcheckPublisher>
+    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.57">
+      <recipientList>AKutsan@luxoft.com, AGovorov@luxoft.com, MGhiumiusliu@luxoft.com, IIKovalenko@luxoft.com, OVVasyliev@luxoft.com</recipientList>
+      <configuredTriggers>
+        <hudson.plugins.emailext.plugins.trigger.FailureTrigger>
+          <email>
+            <subject>$PROJECT_DEFAULT_SUBJECT</subject>
+            <body>$PROJECT_DEFAULT_CONTENT</body>
+            <recipientProviders>
+              <hudson.plugins.emailext.plugins.recipients.DevelopersRecipientProvider/>
+            </recipientProviders>
+            <attachmentsPattern></attachmentsPattern>
+            <attachBuildLog>false</attachBuildLog>
+            <compressBuildLog>false</compressBuildLog>
+            <replyTo>$PROJECT_DEFAULT_REPLYTO</replyTo>
+            <contentType>project</contentType>
+          </email>
+        </hudson.plugins.emailext.plugins.trigger.FailureTrigger>
+      </configuredTriggers>
+      <contentType>default</contentType>
+      <defaultSubject>OpenSDL - EXT_FUNC - PR - PROPRIETARY</defaultSubject>
+      <defaultContent>${SCRIPT, template=&quot;groovy-html.template&quot;}</defaultContent>
+      <attachmentsPattern></attachmentsPattern>
+      <presendScript>$DEFAULT_PRESEND_SCRIPT</presendScript>
+      <postsendScript>$DEFAULT_POSTSEND_SCRIPT</postsendScript>
+      <attachBuildLog>false</attachBuildLog>
+      <compressBuildLog>false</compressBuildLog>
+      <replyTo>mailer@lc-jenkinsdockerhost.luxoft.com</replyTo>
+      <saveOutput>false</saveOutput>
+      <disabled>false</disabled>
+    </hudson.plugins.emailext.ExtendedEmailPublisher>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.8.8"/>
+    <EnvInjectBuildWrapper plugin="envinject@1.93.1">
+      <info>
+        <propertiesContent>LC_CTYPE=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+CTEST_OUTPUT_ON_FAILURE=TRUE 
+THIRD_PARTY_INSTALL_PREFIX=${WORKSPACE}/build/src/3rdparty/LINUX
+THIRD_PARTY_INSTALL_PREFIX_ARCH=${THIRD_PARTY_INSTALL_PREFIX}/x86
+LD_LIBRARY_PATH=$THIRD_PARTY_INSTALL_PREFIX_ARCH/lib</propertiesContent>
+        <loadFilesFromMaster>false</loadFilesFromMaster>
+      </info>
+    </EnvInjectBuildWrapper>
+  </buildWrappers>
+</project>

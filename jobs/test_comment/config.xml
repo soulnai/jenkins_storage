@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.25.0">
+      <projectUrl>https://github.com/smartdevicelink/sdl_atf/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SDL_BUILD</name>
+          <description></description>
+          <defaultValue>27</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>POLICY</name>
+          <description></description>
+          <defaultValue>BASE</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PULL_ID</name>
+          <description></description>
+          <defaultValue>0</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/smartdevicelink/sdl_atf</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/develop</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <assignedNode>atf_slave</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+sudo apt-get update
+sudo apt-get -y install apt-transport-https ca-certificates
+sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+sudo echo &quot;deb https://apt.dockerproject.org/repo ubuntu-trusty main&quot; | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt-get update
+sudo apt-get -y install docker-engine
+sudo service docker start
+
+CONTAINER=$(sudo docker -H tcp://172.17.0.1:4550 run -d -t atf_slave /bin/bash)
+
+echo ${CONTAINER}
+
+sudo docker -H tcp://172.17.0.1:4550 exec ${CONTAINER} /bin/bash -c &quot;git clone https://github.com/smartdevicelink/sdl_atf; export QMAKE=/opt/qt53/bin/qmake; cd sdl_atf; git submodule init; git submodule update; export QMAKE=/opt/qt53/bin/qmake; export WORKSPACE=/sdl_atf; make; wget http://172.30.23.4:8081/artifactory/test-generic/ATF_script.sh; ls -l; sudo chmod +x ATF_script.sh; sudo chmod 777 ATF_script.sh; export SDL_BUILD=27; export POLICY=BASE; export PULL_ID=0; ./ATF_script.sh&quot;
+sudo docker -H tcp://172.17.0.1:4550 stop ${CONTAINER}
+sudo docker -H tcp://172.17.0.1:4550 rm ${CONTAINER}
+
+#git submodule init
+#git submodule update
+#make
+
+
+#wget http://172.30.23.4:8081/artifactory/test-generic/ATF_script.sh
+#sudo chmod +x ATF_script.sh
+#sudo chmod 777 ATF_script.sh
+#cat ATF_script.sh
+#ls -la
+#./ATF_script.sh
+
+#echo ${PULL_ID}
+
+
+#if [ $failed -eq 1 ]; then
+#  if [ ${PULL_ID} -ne 0 ]; then
+#	curl -H &quot;Content-type: application/json&quot; -X POST -u JenkinsSDLOnCloud:1qaz@WSX -d &quot;{\&quot;body\&quot;: \&quot;ATF failed ${BUILD_URL}\&quot;, \&quot;in_reply_to\&quot;: 0}&quot; https://api.github.com/repos/smartdevicelink/sdl_core/issues/${PULL_ID}/comments
+#  fi
+# exit 1
+#fi</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.32">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.18">
+      <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
+        <timeoutMinutes>90</timeoutMinutes>
+      </strategy>
+      <operationList>
+        <hudson.plugins.build__timeout.operations.AbortOperation/>
+      </operationList>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.8.7"/>
+    <EnvInjectBuildWrapper plugin="envinject@1.93.1">
+      <info>
+        <propertiesContent>QMAKE=/opt/qt53/bin/qmake</propertiesContent>
+        <loadFilesFromMaster>false</loadFilesFromMaster>
+      </info>
+    </EnvInjectBuildWrapper>
+  </buildWrappers>
+</project>

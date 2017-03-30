@@ -1,0 +1,569 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson>
+  <disabledAdministrativeMonitors/>
+  <version>2.51</version>
+  <numExecutors>0</numExecutors>
+  <mode>EXCLUSIVE</mode>
+  <useSecurity>true</useSecurity>
+  <authorizationStrategy class="hudson.security.ProjectMatrixAuthorizationStrategy">
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Create:admin</permission>
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Delete:admin</permission>
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains:admin</permission>
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Update:admin</permission>
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.View:admin</permission>
+    <permission>hudson.model.Computer.Build:admin</permission>
+    <permission>hudson.model.Computer.Configure:admin</permission>
+    <permission>hudson.model.Computer.Connect:admin</permission>
+    <permission>hudson.model.Computer.Create:admin</permission>
+    <permission>hudson.model.Computer.Delete:admin</permission>
+    <permission>hudson.model.Computer.Disconnect:admin</permission>
+    <permission>hudson.model.Hudson.Administer:admin</permission>
+    <permission>hudson.model.Hudson.ConfigureUpdateCenter:admin</permission>
+    <permission>hudson.model.Hudson.Read:admin</permission>
+    <permission>hudson.model.Hudson.Read:anonymous</permission>
+    <permission>hudson.model.Hudson.RunScripts:admin</permission>
+    <permission>hudson.model.Hudson.UploadPlugins:admin</permission>
+    <permission>hudson.model.Item.Build:admin</permission>
+    <permission>hudson.model.Item.Cancel:admin</permission>
+    <permission>hudson.model.Item.Configure:admin</permission>
+    <permission>hudson.model.Item.Create:admin</permission>
+    <permission>hudson.model.Item.Delete:admin</permission>
+    <permission>hudson.model.Item.Discover:admin</permission>
+    <permission>hudson.model.Item.Move:admin</permission>
+    <permission>hudson.model.Item.Read:admin</permission>
+    <permission>hudson.model.Item.Read:anonymous</permission>
+    <permission>hudson.model.Item.ViewStatus:admin</permission>
+    <permission>hudson.model.Item.ViewStatus:anonymous</permission>
+    <permission>hudson.model.Item.Workspace:admin</permission>
+    <permission>hudson.model.Run.Delete:admin</permission>
+    <permission>hudson.model.Run.Replay:admin</permission>
+    <permission>hudson.model.Run.Update:admin</permission>
+    <permission>hudson.model.View.Configure:admin</permission>
+    <permission>hudson.model.View.Create:admin</permission>
+    <permission>hudson.model.View.Delete:admin</permission>
+    <permission>hudson.model.View.Read:admin</permission>
+    <permission>hudson.model.View.Read:anonymous</permission>
+    <permission>hudson.scm.SCM.Tag:admin</permission>
+    <permission>org.jfrog.hudson.ArtifactoryPlugin.Promote:admin</permission>
+    <permission>org.jfrog.hudson.ArtifactoryPlugin.PushToBintray:admin</permission>
+    <permission>org.jfrog.hudson.ArtifactoryPlugin.Release:admin</permission>
+  </authorizationStrategy>
+  <securityRealm class="hudson.security.HudsonPrivateSecurityRealm">
+    <disableSignup>true</disableSignup>
+    <enableCaptcha>false</enableCaptcha>
+  </securityRealm>
+  <disableRememberMe>false</disableRememberMe>
+  <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
+  <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULLNAME}</workspaceDir>
+  <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
+  <markupFormatter class="hudson.markup.RawHtmlMarkupFormatter" plugin="antisamy-markup-formatter@1.5">
+    <disableSyntaxHighlighting>false</disableSyntaxHighlighting>
+  </markupFormatter>
+  <jdks/>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+  <clouds>
+    <com.nirima.jenkins.plugins.docker.DockerCloud plugin="docker-plugin@0.16.2">
+      <name>dock</name>
+      <templates>
+        <com.nirima.jenkins.plugins.docker.DockerTemplate>
+          <configVersion>2</configVersion>
+          <labelString>atf_slave</labelString>
+          <launcher class="com.nirima.jenkins.plugins.docker.launcher.DockerComputerSSHLauncher">
+            <sshConnector plugin="ssh-slaves@1.16">
+              <port>22</port>
+              <credentialsId>393c537e-d99a-4cf9-9f8c-15e4d427c40d</credentialsId>
+              <jvmOptions></jvmOptions>
+              <javaPath></javaPath>
+              <maxNumRetries>5</maxNumRetries>
+              <retryWaitTime>1</retryWaitTime>
+              <sshHostKeyVerificationStrategy class="hudson.plugins.sshslaves.verifiers.KnownHostsFileKeyVerificationStrategy"/>
+            </sshConnector>
+          </launcher>
+          <remoteFsMapping>/home/jenkins_docker_slave</remoteFsMapping>
+          <remoteFs>/home/jenkins</remoteFs>
+          <instanceCap>10</instanceCap>
+          <mode>EXCLUSIVE</mode>
+          <retentionStrategy class="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">
+            <idleMinutes>0</idleMinutes>
+            <idleMinutes defined-in="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">0</idleMinutes>
+          </retentionStrategy>
+          <numExecutors>1</numExecutors>
+          <dockerTemplateBase>
+            <image>atf_slave</image>
+            <dockerCommand></dockerCommand>
+            <lxcConfString></lxcConfString>
+            <hostname></hostname>
+            <dnsHosts/>
+            <network></network>
+            <volumes>
+              <string>/home/jenkins/shared_folder_jenkins/build_tmp:/home/jenkins/build_tmp</string>
+            </volumes>
+            <volumesFrom2/>
+            <environment/>
+            <bindPorts>22</bindPorts>
+            <bindAllPorts>false</bindAllPorts>
+            <privileged>false</privileged>
+            <tty>false</tty>
+            <extraHosts class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+              <c class="list"/>
+              <list reference="../c"/>
+            </extraHosts>
+          </dockerTemplateBase>
+          <removeVolumes>true</removeVolumes>
+          <pullStrategy>PULL_LATEST</pullStrategy>
+        </com.nirima.jenkins.plugins.docker.DockerTemplate>
+        <com.nirima.jenkins.plugins.docker.DockerTemplate>
+          <configVersion>2</configVersion>
+          <labelString>tmp_atf</labelString>
+          <launcher class="com.nirima.jenkins.plugins.docker.launcher.DockerComputerSSHLauncher">
+            <sshConnector plugin="ssh-slaves@1.16">
+              <port>22</port>
+              <credentialsId>393c537e-d99a-4cf9-9f8c-15e4d427c40d</credentialsId>
+              <jvmOptions></jvmOptions>
+              <javaPath></javaPath>
+              <maxNumRetries>2</maxNumRetries>
+              <retryWaitTime>5</retryWaitTime>
+              <sshHostKeyVerificationStrategy class="hudson.plugins.sshslaves.verifiers.KnownHostsFileKeyVerificationStrategy"/>
+            </sshConnector>
+          </launcher>
+          <remoteFsMapping>/home/jenkins_docker_slave</remoteFsMapping>
+          <remoteFs>/home/jenkins</remoteFs>
+          <instanceCap>20</instanceCap>
+          <mode>EXCLUSIVE</mode>
+          <retentionStrategy class="com.nirima.jenkins.plugins.docker.strategy.DockerOnceRetentionStrategy">
+            <idleMinutes>0</idleMinutes>
+            <idleMinutes defined-in="com.nirima.jenkins.plugins.docker.strategy.DockerOnceRetentionStrategy">0</idleMinutes>
+          </retentionStrategy>
+          <numExecutors>1</numExecutors>
+          <dockerTemplateBase>
+            <image>tmp_atf</image>
+            <dockerCommand></dockerCommand>
+            <lxcConfString></lxcConfString>
+            <hostname></hostname>
+            <dnsHosts/>
+            <network></network>
+            <volumes>
+              <string>/home/jenkins/shared_folder_jenkins/build_tmp:/home/jenkins/build_tmp</string>
+            </volumes>
+            <volumesFrom2/>
+            <environment/>
+            <bindPorts></bindPorts>
+            <bindAllPorts>false</bindAllPorts>
+            <privileged>false</privileged>
+            <tty>false</tty>
+            <extraHosts class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+              <c class="list"/>
+              <list reference="../c"/>
+            </extraHosts>
+          </dockerTemplateBase>
+          <removeVolumes>true</removeVolumes>
+          <pullStrategy>PULL_LATEST</pullStrategy>
+        </com.nirima.jenkins.plugins.docker.DockerTemplate>
+      </templates>
+      <serverUrl>tcp://172.17.0.1:4550</serverUrl>
+      <connectTimeout>10</connectTimeout>
+      <readTimeout>10</readTimeout>
+      <version></version>
+      <credentialsId></credentialsId>
+      <containerCap>40</containerCap>
+    </com.nirima.jenkins.plugins.docker.DockerCloud>
+    <com.nirima.jenkins.plugins.docker.DockerCloud plugin="docker-plugin@0.16.2">
+      <name>dock2</name>
+      <templates>
+        <com.nirima.jenkins.plugins.docker.DockerTemplate>
+          <configVersion>2</configVersion>
+          <labelString>atf_slave2</labelString>
+          <launcher class="com.nirima.jenkins.plugins.docker.launcher.DockerComputerSSHLauncher">
+            <sshConnector plugin="ssh-slaves@1.16">
+              <port>22</port>
+              <credentialsId>393c537e-d99a-4cf9-9f8c-15e4d427c40d</credentialsId>
+              <jvmOptions></jvmOptions>
+              <javaPath></javaPath>
+              <maxNumRetries>0</maxNumRetries>
+              <retryWaitTime>0</retryWaitTime>
+              <sshHostKeyVerificationStrategy class="hudson.plugins.sshslaves.verifiers.KnownHostsFileKeyVerificationStrategy"/>
+            </sshConnector>
+          </launcher>
+          <remoteFsMapping>/home/tempuser/docker/jenkins_docker_slave</remoteFsMapping>
+          <remoteFs>/home/jenkins</remoteFs>
+          <instanceCap>8</instanceCap>
+          <mode>EXCLUSIVE</mode>
+          <retentionStrategy class="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">
+            <idleMinutes>0</idleMinutes>
+            <idleMinutes defined-in="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">0</idleMinutes>
+          </retentionStrategy>
+          <numExecutors>1</numExecutors>
+          <dockerTemplateBase>
+            <image>atf_slave2</image>
+            <dockerCommand></dockerCommand>
+            <lxcConfString></lxcConfString>
+            <hostname></hostname>
+            <dnsHosts/>
+            <network></network>
+            <volumes>
+              <string>/home/jenkins/NFS/OpenSDL_git:/home/jenkins/OpenSDL_git</string>
+            </volumes>
+            <volumesFrom2/>
+            <environment/>
+            <bindPorts>22</bindPorts>
+            <bindAllPorts>false</bindAllPorts>
+            <privileged>false</privileged>
+            <tty>false</tty>
+            <extraHosts class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+              <c class="list"/>
+              <list reference="../c"/>
+            </extraHosts>
+          </dockerTemplateBase>
+          <removeVolumes>true</removeVolumes>
+          <pullStrategy>PULL_LATEST</pullStrategy>
+        </com.nirima.jenkins.plugins.docker.DockerTemplate>
+        <com.nirima.jenkins.plugins.docker.DockerTemplate>
+          <configVersion>2</configVersion>
+          <labelString>ubuntu16</labelString>
+          <launcher class="com.nirima.jenkins.plugins.docker.launcher.DockerComputerSSHLauncher">
+            <sshConnector plugin="ssh-slaves@1.16">
+              <port>22</port>
+              <credentialsId>393c537e-d99a-4cf9-9f8c-15e4d427c40d</credentialsId>
+              <jvmOptions></jvmOptions>
+              <javaPath></javaPath>
+              <maxNumRetries>0</maxNumRetries>
+              <retryWaitTime>0</retryWaitTime>
+              <sshHostKeyVerificationStrategy class="hudson.plugins.sshslaves.verifiers.KnownHostsFileKeyVerificationStrategy"/>
+            </sshConnector>
+          </launcher>
+          <remoteFsMapping>/home/tempuser/docker/jenkins_docker_slave</remoteFsMapping>
+          <remoteFs>/home/jenkins</remoteFs>
+          <instanceCap>1</instanceCap>
+          <mode>EXCLUSIVE</mode>
+          <retentionStrategy class="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">
+            <idleMinutes>0</idleMinutes>
+            <idleMinutes defined-in="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">0</idleMinutes>
+          </retentionStrategy>
+          <numExecutors>1</numExecutors>
+          <dockerTemplateBase>
+            <image>ubuntu16</image>
+            <dockerCommand></dockerCommand>
+            <lxcConfString></lxcConfString>
+            <hostname></hostname>
+            <dnsHosts/>
+            <network></network>
+            <volumes/>
+            <volumesFrom2/>
+            <environment/>
+            <bindPorts>22</bindPorts>
+            <bindAllPorts>false</bindAllPorts>
+            <privileged>false</privileged>
+            <tty>false</tty>
+            <extraHosts class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+              <c class="list"/>
+              <list reference="../c"/>
+            </extraHosts>
+          </dockerTemplateBase>
+          <removeVolumes>true</removeVolumes>
+          <pullStrategy>PULL_LATEST</pullStrategy>
+        </com.nirima.jenkins.plugins.docker.DockerTemplate>
+      </templates>
+      <serverUrl>tcp://172.30.19.219:4550</serverUrl>
+      <connectTimeout>10</connectTimeout>
+      <readTimeout>10</readTimeout>
+      <version></version>
+      <credentialsId></credentialsId>
+      <containerCap>20</containerCap>
+    </com.nirima.jenkins.plugins.docker.DockerCloud>
+    <com.nirima.jenkins.plugins.docker.DockerCloud plugin="docker-plugin@0.16.2">
+      <name>dock3</name>
+      <templates>
+        <com.nirima.jenkins.plugins.docker.DockerTemplate>
+          <configVersion>2</configVersion>
+          <labelString>atf_slave3</labelString>
+          <launcher class="com.nirima.jenkins.plugins.docker.launcher.DockerComputerSSHLauncher">
+            <sshConnector plugin="ssh-slaves@1.16">
+              <port>22</port>
+              <credentialsId>393c537e-d99a-4cf9-9f8c-15e4d427c40d</credentialsId>
+              <jvmOptions></jvmOptions>
+              <javaPath></javaPath>
+              <maxNumRetries>0</maxNumRetries>
+              <retryWaitTime>0</retryWaitTime>
+              <sshHostKeyVerificationStrategy class="hudson.plugins.sshslaves.verifiers.KnownHostsFileKeyVerificationStrategy"/>
+            </sshConnector>
+          </launcher>
+          <remoteFsMapping>/home/tempuser/docker/jenkins_docker_slave</remoteFsMapping>
+          <remoteFs>/home/jenkins</remoteFs>
+          <instanceCap>18</instanceCap>
+          <mode>EXCLUSIVE</mode>
+          <retentionStrategy class="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">
+            <idleMinutes>1</idleMinutes>
+            <idleMinutes defined-in="com.nirima.jenkins.plugins.docker.strategy.DockerCloudRetentionStrategy">1</idleMinutes>
+          </retentionStrategy>
+          <numExecutors>1</numExecutors>
+          <dockerTemplateBase>
+            <image>atf_slave3</image>
+            <dockerCommand></dockerCommand>
+            <lxcConfString></lxcConfString>
+            <hostname></hostname>
+            <dnsHosts/>
+            <network></network>
+            <volumes>
+              <string>/home/jenkins/shared_folder_jenkins/build_tmp:/home/jenkins/build_tmp</string>
+            </volumes>
+            <volumesFrom2/>
+            <environment/>
+            <bindPorts></bindPorts>
+            <bindAllPorts>false</bindAllPorts>
+            <privileged>false</privileged>
+            <tty>false</tty>
+            <extraHosts class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+              <c class="list"/>
+              <list reference="../c"/>
+            </extraHosts>
+          </dockerTemplateBase>
+          <removeVolumes>true</removeVolumes>
+          <pullStrategy>PULL_LATEST</pullStrategy>
+        </com.nirima.jenkins.plugins.docker.DockerTemplate>
+        <com.nirima.jenkins.plugins.docker.DockerTemplate>
+          <configVersion>2</configVersion>
+          <labelString>tmp_atf</labelString>
+          <launcher class="com.nirima.jenkins.plugins.docker.launcher.DockerComputerSSHLauncher">
+            <sshConnector plugin="ssh-slaves@1.16">
+              <port>22</port>
+              <credentialsId>393c537e-d99a-4cf9-9f8c-15e4d427c40d</credentialsId>
+              <jvmOptions></jvmOptions>
+              <javaPath></javaPath>
+              <maxNumRetries>0</maxNumRetries>
+              <retryWaitTime>0</retryWaitTime>
+              <sshHostKeyVerificationStrategy class="hudson.plugins.sshslaves.verifiers.KnownHostsFileKeyVerificationStrategy"/>
+            </sshConnector>
+          </launcher>
+          <remoteFsMapping>/home/jenkins_docker_slave</remoteFsMapping>
+          <remoteFs>/home/jenkins</remoteFs>
+          <instanceCap>10</instanceCap>
+          <mode>EXCLUSIVE</mode>
+          <retentionStrategy class="com.nirima.jenkins.plugins.docker.strategy.DockerOnceRetentionStrategy">
+            <idleMinutes>0</idleMinutes>
+            <idleMinutes defined-in="com.nirima.jenkins.plugins.docker.strategy.DockerOnceRetentionStrategy">0</idleMinutes>
+          </retentionStrategy>
+          <numExecutors>1</numExecutors>
+          <dockerTemplateBase>
+            <image>tmp_atf</image>
+            <dockerCommand></dockerCommand>
+            <lxcConfString></lxcConfString>
+            <hostname></hostname>
+            <dnsHosts/>
+            <network></network>
+            <volumes/>
+            <volumesFrom2/>
+            <environment/>
+            <bindPorts></bindPorts>
+            <bindAllPorts>false</bindAllPorts>
+            <privileged>false</privileged>
+            <tty>false</tty>
+            <extraHosts class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+              <c class="list"/>
+              <list reference="../c"/>
+            </extraHosts>
+          </dockerTemplateBase>
+          <removeVolumes>true</removeVolumes>
+          <pullStrategy>PULL_LATEST</pullStrategy>
+        </com.nirima.jenkins.plugins.docker.DockerTemplate>
+      </templates>
+      <serverUrl>tcp://172.30.23.9:4550</serverUrl>
+      <connectTimeout>10</connectTimeout>
+      <readTimeout>10</readTimeout>
+      <version></version>
+      <credentialsId></credentialsId>
+      <containerCap>40</containerCap>
+    </com.nirima.jenkins.plugins.docker.DockerCloud>
+  </clouds>
+  <quietPeriod>5</quietPeriod>
+  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+  <views>
+    <hudson.model.AllView>
+      <owner class="hudson" reference="../../.."/>
+      <name>All</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+    <listView>
+      <owner class="hudson" reference="../../.."/>
+      <name>OnDemand</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+        <string>ATF_Multi_Test</string>
+        <string>ATF_On_Demand</string>
+        <string>ATF_Oneliner</string>
+        <string>OpenSDL_fetch</string>
+        <string>OpenSDL_on_demand</string>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <recurse>false</recurse>
+    </listView>
+    <listView>
+      <owner class="hudson" reference="../../.."/>
+      <name>OpenSDL develop</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+        <string>Archive/RC_BRANCH_ARCHIVE/RC_Weekly/OpenSDL_RC_Coverage</string>
+        <string>OpenSDL_Develop_Nightly</string>
+        <string>OpenSDL_Develop_Nightly/OpenSDL_Nightly</string>
+        <string>OpenSDL_Develop_PR</string>
+        <string>OpenSDL_Develop_PR/OpenSDL_develop_ATF</string>
+        <string>OpenSDL_Develop_PR/OpenSDL_PR</string>
+        <string>OpenSDL_develop_PUSH</string>
+        <string>OpenSDL_develop_PUSH/OpenSDL_PUSH</string>
+        <string>OpenSDL_Develop_Weekly</string>
+        <string>OpenSDL_Develop_Weekly/OpenSDL_Regression_Weekly</string>
+        <string>OpenSDL_Develop_Weekly/OpenSDL_Weekly_ATF</string>
+        <string>OpenSDL_Release</string>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <recurse>false</recurse>
+    </listView>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.9.10">
+      <owner class="hudson" reference="../../.."/>
+      <name>History</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+        <string>Archive/RC_BRANCH_ARCHIVE/RC_Latest_Commit_Status</string>
+        <string>Archive/RC_BRANCH_ARCHIVE/RC_Nightly_Status</string>
+        <string>Archive/RC_BRANCH_ARCHIVE/RC_Pull_Request_Status</string>
+        <string>Archive/RC_BRANCH_ARCHIVE/RC_Weekly</string>
+        <string>EXT_FUNC_NIGHTLY</string>
+        <string>EXT_FUNC_PULL_REQUEST_STATUS</string>
+        <string>EXT_FUNC_PUSH</string>
+        <string>OpenSDL_Develop_Nightly</string>
+        <string>OpenSDL_Develop_PR</string>
+        <string>OpenSDL_develop_PUSH</string>
+        <string>OpenSDL_Develop_Weekly</string>
+        <string>OpenSDL_Release</string>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>false</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets>
+        <hudson.plugins.view.dashboard.builds.LatestBuilds>
+          <id>dashboard_portlet_29848</id>
+          <name>Latest builds</name>
+          <numBuilds>20</numBuilds>
+        </hudson.plugins.view.dashboard.builds.LatestBuilds>
+      </topPortlets>
+      <bottomPortlets/>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <listView>
+      <owner class="hudson" reference="../../.."/>
+      <name>feature_extended_policy_functionality</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+        <string>EXT_FUNC_NIGHTLY</string>
+        <string>EXT_FUNC_PULL_REQUEST_STATUS</string>
+        <string>EXT_FUNC_PUSH</string>
+        <string>EXT_FUNC_WEEKLY</string>
+        <string>scm_backup_test</string>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <recurse>false</recurse>
+    </listView>
+    <listView>
+      <owner class="hudson" reference="../../.."/>
+      <name>Archive</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+        <string>Archive</string>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <recurse>false</recurse>
+    </listView>
+  </views>
+  <primaryView>feature_extended_policy_functionality</primaryView>
+  <slaveAgentPort>50000</slaveAgentPort>
+  <label></label>
+  <crumbIssuer class="hudson.security.csrf.DefaultCrumbIssuer">
+    <excludeClientIPFromCrumb>false</excludeClientIPFromCrumb>
+  </crumbIssuer>
+  <nodeProperties/>
+  <globalNodeProperties>
+    <hudson.slaves.EnvironmentVariablesNodeProperty>
+      <envVars serialization="custom">
+        <unserializable-parents/>
+        <tree-map>
+          <default>
+            <comparator class="hudson.util.CaseInsensitiveComparator"/>
+          </default>
+          <int>2</int>
+          <string>ATF_CURRENT</string>
+          <string>develop</string>
+          <string>LAST_SUCCESSFULL</string>
+          <string>0</string>
+        </tree-map>
+      </envVars>
+    </hudson.slaves.EnvironmentVariablesNodeProperty>
+  </globalNodeProperties>
+  <noUsageStatistics>true</noUsageStatistics>
+</hudson>

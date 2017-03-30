@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.24.0">
+      <projectUrl>https://github.com/smartdevicelink/sdl_atf.git/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SCRIPT_NUMBER</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SDL_BUILD</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/smartdevicelink/sdl_atf.git/</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>develop</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <assignedNode>atf_slave</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+git submodule init
+git submodule update
+make
+mkdir aut
+cd aut
+wget http://172.30.23.4:8081/artifactory/OpenSDL_ATF/${SDL_BUILD}/OpenSDL.tar.gz
+tar -xvf OpenSDL.tar.gz 
+cd bin
+pwd
+export LD_LIBRARY_PATH=.
+sudo ldconfig
+cd ../..
+wget http://172.30.23.4:8081/artifactory/atf_tests_scripts_pr/${SCRIPT_NUMBER}/atf_test_scripts.tar.gz
+pwd
+tar -xvf atf_test_scripts.tar.gz 
+cp -rf home/jenkins/workspace/atf_tests_scripts_pr/*  ${WORKSPACE}
+ls -la
+cp -rf aut/bin/api/. ${WORKSPACE}/data/
+ls -l data/
+
+echo &quot;&lt;html&gt;&lt;head&gt;&lt;title&gt;Report&lt;/title&gt;&lt;/head&gt;&lt;table border=&apos;1&apos;&gt;&quot; &gt;&gt; atf_report.html
+echo &quot;&lt;h3&gt;${JOB_NAME}&lt;/h3&gt;&quot; &gt;&gt; atf_report.html
+echo &quot;&lt;tr&gt;&lt;td&gt;Test name&lt;/td&gt;&lt;td&gt;Test Result&lt;/td&gt;&lt;td&gt;Execution time.&lt;/td&gt;&lt;/tr&gt;&quot; &gt;&gt; atf_report.html
+echo &quot;&lt;testsuites&gt;&quot; &gt;&gt; junit.xml
+total_time=0;
+#for i in $(find ./test_scripts/Polices/Policy_Table_Update/ -type f -name &quot;*.lua&quot;);
+for i in $(cat ./test_sets/policies_happy_paths.txt);
+do
+ echo $i;
+ start=$SECONDS;
+ ps -aux | grep smartDeviceLinkCore | awk &apos;{print $2}&apos; | xargs kill -9;
+ ./start.sh --sdl-core=aut/bin $i | tee console.log ; result=${PIPESTATUS[0]};
+ if [ $result -eq 0 ]; then
+  	stop=$SECONDS;
+ 	(( runtime=stop-start ));
+ 	(( total_time=total_time+runtime ));
+    echo &quot;&lt;testsuite name=&apos;$(basename $i .lua)&apos;&gt;&quot; &gt;&gt; junit.xml
+ 	echo &quot;Test passed!&quot;;
+    echo &quot;&lt;tr&gt; &lt;td&gt;$i&lt;/td&gt;&lt;td bgcolor=&apos;green&apos;&gt;Passed!&lt;/td&gt;&lt;td&gt;$runtime&lt;/td&gt;&lt;/tr&gt;&quot; &gt;&gt; atf_report.html;
+    grep -w &quot;SUCCESS&quot; console.log | while read -r line; do
+    	arr=($line)
+        echo &quot;&lt;testcase name=&apos;${arr[1]}&apos; classname=&apos;$(basename $i .lua)&apos; time=&apos;$runtime&apos; /&gt;&quot; &gt;&gt; junit.xml;
+	done
+    grep -w &quot;FAIL&quot; console.log | while read -r line; do
+    	arr=($line)
+        echo &quot;&lt;testcase name=&apos;${arr[1]}&apos; classname=&apos;$(basename $i .lua)&apos; time=&apos;$runtime&apos;&gt;&quot; &gt;&gt; junit.xml;
+    	echo &quot;&lt;failure message=&apos;Test failed&apos;&gt;${arr[1]}&lt;/failure&gt;&quot; &gt;&gt; junit.xml;
+        echo &quot;&lt;/testcase&gt;&quot; &gt;&gt; junit.xml
+	done 
+ fi
+ if [ $result -eq 2 ]; then
+  	stop=$SECONDS;
+ 	(( runtime=stop-start ));
+ 	(( total_time=total_time+runtime ));
+ 	echo &quot;&lt;tr&gt; &lt;td&gt;$i&lt;/td&gt;&lt;td bgcolor=&apos;red&apos;&gt;Failed!&lt;/td&gt;&lt;td&gt;$runtime&lt;/td&gt;&lt;/tr&gt;&quot; &gt;&gt; atf_report.html;
+    echo &quot;&lt;testsuite name=&apos;$(basename $i .lua)&apos;&gt;&quot; &gt;&gt; junit.xml
+    grep -w &quot;SUCCESS&quot; console.log | while read -r line; do
+    	arr=($line)
+    	echo &quot;&lt;testcase name=&apos;${arr[1]}&apos; classname=&apos;$(basename $i .lua)&apos; time=&apos;${arr[0]}&apos; /&gt;&quot; &gt;&gt; junit.xml;
+	done 
+    grep -w &quot;FAIL&quot; console.log | while read -r line; do
+    	arr=($line)
+        echo &quot;&lt;testcase name=&apos;${arr[1]}&apos; classname=&apos;$(basename $i .lua)&apos; time=&apos;${arr[0]}&apos;&gt;&quot; &gt;&gt; junit.xml;
+    	echo &quot;&lt;failure message=&apos;Test failed&apos;&gt;${arr[1]}&lt;/failure&gt;&quot; &gt;&gt; junit.xml;
+        echo &quot;&lt;/testcase&gt;&quot; &gt;&gt; junit.xml
+	done  
+    echo &quot;Test failed with exit code = $result!&quot;;
+    failed=1;
+ fi
+ if [ $result -ne 0 ] &amp;&amp; [ $result -ne 2 ]; then
+ 	stop=$SECONDS;
+ 	(( runtime=stop-start ));
+ 	(( total_time=total_time+runtime ));
+ 	echo &quot;&lt;tr&gt; &lt;td&gt;$i&lt;/td&gt;&lt;td bgcolor=&apos;red&apos;&gt;Failed!&lt;/td&gt;&lt;td&gt;$runtime&lt;/td&gt;&lt;/tr&gt;&quot; &gt;&gt; atf_report.html;
+    echo &quot;&lt;testsuite name=&apos;$(basename $i .lua)&apos;&gt;&quot; &gt;&gt; junit.xml
+    grep -w &quot;SUCCESS&quot; console.log | while read -r line; do
+    	arr=($line)
+    	echo &quot;&lt;testcase name=&apos;${arr[1]}&apos; classname=&apos;$(basename $i .lua)&apos; time=&apos;${arr[0]}&apos; /&gt;&quot; &gt;&gt; junit.xml;
+	done 
+    grep -w &quot;FAIL&quot; console.log | while read -r line; do
+    	arr=($line)
+        echo &quot;&lt;testcase name=&apos;${arr[1]}&apos; classname=&apos;$(basename $i .lua)&apos; time=&apos;${arr[0]}&apos;&gt;&quot; &gt;&gt; junit.xml;
+    	echo &quot;&lt;failure message=&apos;Test failed&apos;&gt;${arr[1]}&lt;/failure&gt;&quot; &gt;&gt; junit.xml;
+        echo &quot;&lt;/testcase&gt;&quot; &gt;&gt; junit.xml
+	done  
+    echo &quot;&lt;testcase name=&apos;Test suite exit status&apos; classname=&apos;$(basename $i .lua)&apos; time=&apos;${arr[0]}&apos;&gt;&quot; &gt;&gt; junit.xml;
+   	echo &quot;&lt;failure message=&apos;Something goes wrong&apos;&gt;Test exited with exit code = $result&lt;/failure&gt;&quot; &gt;&gt; junit.xml;
+    echo &quot;&lt;/testcase&gt;&quot; &gt;&gt; junit.xml
+    echo &quot;Test failed with exit code = $result!&quot;;
+    failed=1;
+ fi
+ ps -aux | grep smartDeviceLinkCore | awk &apos;{print $2}&apos; | xargs kill -9;
+ echo &quot;Test finished!&quot;;
+ echo &quot;&lt;/testsuite&gt;&quot; &gt;&gt; junit.xml
+ cp ErrorLog.txt ErrorLog-$(basename $i .lua).txt
+done
+echo &quot;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;Total time: $total_time&lt;/td&gt;&lt;/tr&gt;&quot; &gt;&gt; atf_report.html
+echo &quot;&lt;/table&gt;&lt;/html&gt;&quot; &gt;&gt; atf_report.html
+echo &quot;&lt;/testsuites&gt;&quot; &gt;&gt; junit.xml
+tar -zcvf TestingReports.tar.gz TestingReports/
+tar -zcvf ErrorLogs.tar.gz ErrorLog-*.txt
+
+if [ $failed -eq 1 ]; then
+ exit 1
+fi
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>atf_report.html, TestingReports.tar.gz, junit.xml, ErrorLogs.tar.gz</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.junit.JUnitResultArchiver plugin="junit@1.19">
+      <testResults>junit.xml</testResults>
+      <keepLongStdio>false</keepLongStdio>
+      <healthScaleFactor>1.0</healthScaleFactor>
+      <allowEmptyResults>false</allowEmptyResults>
+    </hudson.tasks.junit.JUnitResultArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.32">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.8.7"/>
+    <EnvInjectBuildWrapper plugin="envinject@1.93.1">
+      <info>
+        <propertiesContent>QMAKE=/opt/qt53/bin/qmake</propertiesContent>
+        <loadFilesFromMaster>false</loadFilesFromMaster>
+      </info>
+    </EnvInjectBuildWrapper>
+    <jenkins.plugins.logstash.LogstashBuildWrapper plugin="logstash@1.2.0"/>
+  </buildWrappers>
+</project>
