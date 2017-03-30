@@ -31,9 +31,10 @@
       <throttleOption>project</throttleOption>
       <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
       <paramsToUseForLimit></paramsToUseForLimit>
+      <configVersion>1</configVersion>
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.1.0">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
@@ -65,7 +66,7 @@
   </scm>
   <assignedNode>atf_slave</assignedNode>
   <canRoam>false</canRoam>
-  <disabled>false</disabled>
+  <disabled>true</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
@@ -295,7 +296,7 @@ TEST_SET=External_Consent_Status_ON.txt</properties>
         </configGraph>
       </cppcheckConfig>
     </org.jenkinsci.plugins.cppcheck.CppcheckPublisher>
-    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.57">
+    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.57.1">
       <recipientList>AKutsan@luxoft.com, AGovorov@luxoft.com, MGhiumiusliu@luxoft.com, IIKovalenko@luxoft.com, OVVasyliev@luxoft.com</recipientList>
       <configuredTriggers>
         <hudson.plugins.emailext.plugins.trigger.FailureTrigger>
