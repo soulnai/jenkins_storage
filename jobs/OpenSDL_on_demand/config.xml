@@ -178,9 +178,6 @@ cppcheck --enable=all --inconclusive -i &quot;src/3rd_party-static&quot; -i &quo
       <parserConfigurations/>
       <consoleParsers>
         <hudson.plugins.warnings.ConsoleParser>
-          <parserName>CppLint</parserName>
-        </hudson.plugins.warnings.ConsoleParser>
-        <hudson.plugins.warnings.ConsoleParser>
           <parserName>GNU C Compiler 4 (gcc)</parserName>
         </hudson.plugins.warnings.ConsoleParser>
         <hudson.plugins.warnings.ConsoleParser>
@@ -223,6 +220,12 @@ cppcheck --enable=all --inconclusive -i &quot;src/3rd_party-static&quot; -i &quo
         </configGraph>
       </cppcheckConfig>
     </org.jenkinsci.plugins.cppcheck.CppcheckPublisher>
+    <hudson.tasks.junit.JUnitResultArchiver plugin="junit@1.20">
+      <testResults>gtest.xml</testResults>
+      <keepLongStdio>false</keepLongStdio>
+      <healthScaleFactor>1.0</healthScaleFactor>
+      <allowEmptyResults>false</allowEmptyResults>
+    </hudson.tasks.junit.JUnitResultArchiver>
     <xunit plugin="xunit@1.102">
       <types>
         <GoogleTestType>
